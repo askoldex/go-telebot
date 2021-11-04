@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"os"
 
+	tb "github.com/askoldex/go-telebot/v2"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 func main() {

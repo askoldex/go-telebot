@@ -1,4 +1,4 @@
-module gopkg.in/askoldex/go-telebot.v2
+module github.com/askoldex/go-telebot/v2
 
 go 1.13
 
