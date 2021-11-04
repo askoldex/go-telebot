@@ -7,7 +7,7 @@
 [![Discuss on Telegram](https://img.shields.io/badge/telegram-discuss-0088cc.svg)](https://t.me/go_telebot)
 
 ```bash
-go get -u gopkg.in/tucnak/telebot.v2
+go get -u gopkg.in/askoldex/go-telebot.v2
 ```
 
 * [Overview](#overview)
