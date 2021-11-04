@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strconv"
@@ -80,21 +81,20 @@ func TestBotHandle(t *testing.T) {
 	if b == nil {
 		t.Skip("Cached bot instance is bad (probably wrong or empty TELEBOT_SECRET)")
 	}
-
-	b.Handle("/start", func(m *Message) {})
+	b.Handle("/start", func(ctx context.Context, m *Message) {})
 	assert.Contains(t, b.handlers, "/start")
 
 	reply := ReplyButton{Text: "reply"}
-	b.Handle(&reply, func(m *Message) {})
+	b.Handle(&reply, func(ctx context.Context, m *Message) {})
 
 	inline := InlineButton{Unique: "inline"}
-	b.Handle(&inline, func(c *Callback) {})
+	b.Handle(&inline, func(ctx context.Context, c *Callback) {})
 
 	btnReply := (&ReplyMarkup{}).Text("btnReply")
-	b.Handle(&btnReply, func(m *Message) {})
+	b.Handle(&btnReply, func(ctx context.Context, m *Message) {})
 
 	btnInline := (&ReplyMarkup{}).Data("", "btnInline")
-	b.Handle(&btnInline, func(c *Callback) {})
+	b.Handle(&btnInline, func(ctx context.Context, c *Callback) {})
 
 	assert.Contains(t, b.handlers, btnReply.CallbackUnique())
 	assert.Contains(t, b.handlers, btnInline.CallbackUnique())
@@ -136,7 +136,7 @@ func TestBotStart(t *testing.T) {
 	b.Poller = tp
 
 	var ok bool
-	b.Handle("/start", func(m *Message) {
+	b.Handle("/start", func(ctx context.Context, m *Message) {
 		assert.Equal(t, m.Text, "/start")
 		tp.done <- struct{}{}
 		ok = true
@@ -155,103 +155,135 @@ func TestBotProcessUpdate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b.Handle("/start", func(m *Message) {
+	b.Handle("/start", func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "/start", m.Text)
 	})
-	b.Handle("hello", func(m *Message) {
+	b.Handle("hello", func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "hello", m.Text)
 	})
-	b.Handle(OnText, func(m *Message) {
+	b.Handle(OnText, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "text", m.Text)
 	})
-	b.Handle(OnPinned, func(m *Message) {
+	b.Handle(OnPinned, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.PinnedMessage)
 	})
-	b.Handle(OnPhoto, func(m *Message) {
+	b.Handle(OnPhoto, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Photo)
 	})
-	b.Handle(OnVoice, func(m *Message) {
+	b.Handle(OnVoice, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Voice)
 	})
-	b.Handle(OnAudio, func(m *Message) {
+	b.Handle(OnAudio, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Audio)
 	})
-	b.Handle(OnAnimation, func(m *Message) {
+	b.Handle(OnAnimation, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Animation)
 	})
-	b.Handle(OnDocument, func(m *Message) {
+	b.Handle(OnDocument, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Document)
 	})
-	b.Handle(OnSticker, func(m *Message) {
+	b.Handle(OnSticker, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Sticker)
 	})
-	b.Handle(OnVideo, func(m *Message) {
+	b.Handle(OnVideo, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Video)
 	})
-	b.Handle(OnVideoNote, func(m *Message) {
+	b.Handle(OnVideoNote, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.VideoNote)
 	})
-	b.Handle(OnContact, func(m *Message) {
+	b.Handle(OnContact, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Contact)
 	})
-	b.Handle(OnLocation, func(m *Message) {
+	b.Handle(OnLocation, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Location)
 	})
-	b.Handle(OnVenue, func(m *Message) {
+	b.Handle(OnVenue, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.Venue)
 	})
-	b.Handle(OnAddedToGroup, func(m *Message) {
+	b.Handle(OnAddedToGroup, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.GroupCreated)
 	})
-	b.Handle(OnUserJoined, func(m *Message) {
+	b.Handle(OnUserJoined, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.UserJoined)
 	})
-	b.Handle(OnUserLeft, func(m *Message) {
+	b.Handle(OnUserLeft, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.UserLeft)
 	})
-	b.Handle(OnNewGroupTitle, func(m *Message) {
+	b.Handle(OnNewGroupTitle, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "title", m.NewGroupTitle)
 	})
-	b.Handle(OnNewGroupPhoto, func(m *Message) {
+	b.Handle(OnNewGroupPhoto, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.NotNil(t, m.NewGroupPhoto)
 	})
-	b.Handle(OnGroupPhotoDeleted, func(m *Message) {
+	b.Handle(OnGroupPhotoDeleted, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.True(t, m.GroupPhotoDeleted)
 	})
-	b.Handle(OnMigration, func(from, to int64) {
+	b.Handle(OnMigration, func(ctx context.Context, from, to int64) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, int64(1), from)
 		assert.Equal(t, int64(2), to)
 	})
-	b.Handle(OnEdited, func(m *Message) {
+	b.Handle(OnEdited, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "edited", m.Text)
 	})
-	b.Handle(OnChannelPost, func(m *Message) {
+	b.Handle(OnChannelPost, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "post", m.Text)
 	})
-	b.Handle(OnEditedChannelPost, func(m *Message) {
+	b.Handle(OnEditedChannelPost, func(ctx context.Context, m *Message) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "edited post", m.Text)
 	})
-	b.Handle(OnCallback, func(c *Callback) {
+	b.Handle(OnCallback, func(ctx context.Context, c *Callback) {
+		assert.NotNil(t, ctx)
 		if c.Data[0] != '\f' {
 			assert.Equal(t, "callback", c.Data)
 		}
 	})
-	b.Handle("\funique", func(c *Callback) {
+	b.Handle("\funique", func(ctx context.Context, c *Callback) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "callback", c.Data)
 	})
-	b.Handle(OnQuery, func(q *Query) {
+	b.Handle(OnQuery, func(ctx context.Context, q *Query) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "query", q.Text)
 	})
-	b.Handle(OnChosenInlineResult, func(r *ChosenInlineResult) {
+	b.Handle(OnChosenInlineResult, func(ctx context.Context, r *ChosenInlineResult) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "result", r.ResultID)
 	})
-	b.Handle(OnCheckout, func(pre *PreCheckoutQuery) {
+	b.Handle(OnCheckout, func(ctx context.Context, pre *PreCheckoutQuery) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "checkout", pre.ID)
 	})
-	b.Handle(OnPoll, func(p *Poll) {
+	b.Handle(OnPoll, func(ctx context.Context, p *Poll) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "poll", p.ID)
 	})
-	b.Handle(OnPollAnswer, func(pa *PollAnswer) {
+	b.Handle(OnPollAnswer, func(ctx context.Context, pa *PollAnswer) {
+		assert.NotNil(t, ctx)
 		assert.Equal(t, "poll", pa.PollID)
 	})
 
